@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<!--suppress HtmlUnknownTag -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPUB Fixer for Kobo</title>
+    <meta name="description"
+          content="Fix EPUB formatting, remove annoying line-heights, and clean up ebook layout issues to read in Kobo e-reader; online for free.">
+
+    <meta name="theme-color" content="#8A9A5B">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EPUB fixer">
+
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        :root {
+            --primary-sage: #8A9A5B;
+            --primary-sage-dark: #6b7a42;
+            --accent-orange: #E9967A;
+            --accent-orange-pop: #FF7F50;
+            --bg-cream: #F9F7F2;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --card-shadow: 0 10px 25px rgba(138, 154, 91, 0.15);
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--primary-sage);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary-sage-dark);
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .quote {
+            font-style: italic;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-family: serif;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 800px;
+            width: 95%;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 2rem 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .intro {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* AdSense Placeholder */
+        .ad-container {
+            background-color: #eee;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            border: 1px dashed #ccc;
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        /* INSTRUCTIONS FOR ADSENSE:
+           Paste your <ins class="adsbygoogle" ...></ins> code inside the .ad-container div
+           or replace the div entirely with your ad code.
+        */
+
+        /* Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-card {
+            border: 1px solid #eee;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary-sage);
+            background-color: #fafbf8;
+        }
+
+        label {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--accent-orange-pop);
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            margin-top: 3px;
+        }
+
+        .opt-title {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: var(--primary-sage-dark);
+        }
+
+        .opt-desc {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* File Drop Area */
+        .drop-zone {
+            border: 2px dashed var(--primary-sage);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            background-color: #fafbf8;
+            position: relative;
+        }
+
+        .drop-zone:hover {
+            background-color: #eff2ea;
+            border-color: var(--accent-orange);
+        }
+
+        .drop-text {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+        }
+
+        .drop-sub {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 2rem;
+            display: none; /* Hidden by default */
+        }
+
+        .progress-bar-shell {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary-sage), var(--accent-orange));
+            transition: width 0.1s linear;
+        }
+
+        .status-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: var(--primary-sage-dark);
+        }
+
+        /* Links Section */
+        .links-section {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .links-section h3 {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .btn-link {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 16px;
+            background-color: var(--primary-sage);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn-link:hover {
+            background-color: var(--accent-orange-pop);
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-links a {
+            color: var(--accent-orange);
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>EPUB Formatting Fixer</h1>
+    <div class="quote">"A better formatted EPUB is better than not." — Some Ancient Wise Man</div>
+</header>
+
+<main>
+    <div class="intro">
+        <p><strong>Stop squinting at bad text.</strong> This tool lovingly cleans up the messy formatting in e-books
+            so you can actually read them. It strips away the "artist's vision" and lets you decide how you want it to
+            be served on your Kobo or other e-reader, which loves publisher style more than yours.</p>
+    </div>
+
+    <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">
+        Ad Space: Where the server hamsters take their lunch breaks.
+    </div>
+
+    <div class="ad-container">
+
+    </div>
+
+    <div class="options-grid">
+        <div class="option-card">
+            <label>
+                <input type="checkbox" id="fix-line-height" checked>
+                <div>
+                    <span class="opt-title">Nuke Line Height Shackles</span>
+                    <span class="opt-desc">Removes fixed between-line spacing.
+                        Cures "Wall of Text" syndrome and makes your eyes happy.</span>
+                </div>
+            </label>
+        </div>
+
+        <div class="option-card">
+            <label>
+                <input type="checkbox" id="fix-align" checked>
+                <div>
+                    <span class="opt-title">Alignment Anarchy</span>
+                    <span class="opt-desc">Removes text alignment locks. Let your device decide where words sit in the line.</span>
+                </div>
+            </label>
+        </div>
+
+        <div class="option-card">
+            <label>
+                <input type="checkbox" id="fix-fontsize" checked>
+                <div>
+                    <span class="opt-title">Pixel Prison Break</span>
+                    <span class="opt-desc">Deletes fixed font sizes. Because size set in pixels is a crime against accessibility.</span>
+                </div>
+            </label>
+        </div>
+
+        <div class="option-card">
+            <label>
+                <input type="checkbox" id="fix-ocean">
+                <div>
+                    <span class="opt-title">Divorce from Ocean of PDF</span>
+                    <span class="opt-desc">Downloaded from the Ocean? Tired of the Ocean links? We'll toss them into the abyss.</span>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+        <div class="drop-text">Drop your messed up EPUB here</div>
+        <div class="drop-sub">or click to select (We'll handle the rest)</div>
+        <input type="file" id="fileInput" accept=".epub">
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar-shell">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="status-text" id="statusText">Spinning up the hamsters...</div>
+    </div>
+
+    <div class="disclaimer">
+        Disclaimer: We are pretty good at this, but on rare occasions, the resulting file might look worse than the
+        original if the publisher did something truly bizarre with their CSS.
+        <br/>
+        <br/>
+        You still keep the original file, don't you?
+    </div>
+
+    <div class="links-section">
+        <h3>Need books to test?</h3>
+        <a href="https://www.gutenberg.org/" target="_blank" class="btn-link">Project Gutenberg</a>
+        <a href="https://standardebooks.org/" target="_blank" class="btn-link">Standard Ebooks (The Gold Standard)</a>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-links">&copy;
+        <script>document.write(new Date().getFullYear().toString())</script>
+        <a href="https://mydaily.app">MyDaily.App</a>
+        Made with ☕ and sarcasm.
+    </div>
+</footer>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const statusText = document.getElementById('statusText');
+
+    // Funny status messages
+    const messages = [
+        "Analyzing styling crimes against humanity...",
+        "Unfixing fixed sizes...",
+        "Arguing with the text alignment...",
+        "Removing promotional spam...",
+        "Polishing the metadata...",
+        "Almost there...",
+        "Re-packaging the unpackaged..."
+    ];
+
+    // Drag and Drop Events
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length) handleFile(files[0]);
+    });
+
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+        if (file.type !== "application/epub+zip" && !file.name.endsWith('.epub')) {
+            alert("Please upload a valid .epub file.");
+            return;
+        }
+
+        // UI Reset
+        progressContainer.style.display = 'block';
+        dropZone.style.display = 'none';
+        progressBar.style.width = '0%';
+
+        // Start the "Fake" Progress Logic + Real Processing
+        processEpub(file);
+    }
+
+    async function processEpub(file) {
+        const zip = new JSZip();
+
+        // The total time we want the user to wait (for ads) - 6 seconds
+        const fakeDuration = 6000;
+
+        // Animation Loop for Progress Bar
+        const animateProgress = new Promise((resolve) => {
+            let start = null;
+
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const percentage = Math.min((progress / fakeDuration) * 100, 99); // go to 99%
+
+                progressBar.style.width = percentage + '%';
+
+                // Update text occasionally
+                const msgIndex = Math.floor((percentage / 100) * messages.length);
+                if (messages[msgIndex]) statusText.innerText = messages[msgIndex];
+
+                if (progress < fakeDuration) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    resolve();
+                }
+            }
+
+            window.requestAnimationFrame(step);
+        });
+
+        // The Actual Work (Should be faster than 6 s usually)
+        const fileProcessing = (async () => {
+            try {
+                const contents = await zip.loadAsync(file);
+
+                // Get user preferences
+                const fixLineHeight = document.getElementById('fix-line-height').checked;
+                const fixAlign = document.getElementById('fix-align').checked;
+                const fixFontSize = document.getElementById('fix-fontsize').checked;
+                const fixOcean = document.getElementById('fix-ocean').checked;
+
+                // Iterate over files
+                for (const [filename, zipEntry] of Object.entries(contents.files)) {
+                    if (zipEntry.dir) continue;
+
+                    // CSS FILES
+                    if (filename.endsWith('.css')) {
+                        let cssText = await zipEntry.async("string");
+
+                        if (fixLineHeight) {
+                            // Regex: Remove line-height: anything;
+                            cssText = cssText.replace(/line-height\s*:\s*[^;}!]+(\s*!important)?\s*[;}]/gi, '');
+                        }
+                        if (fixAlign) {
+                            // Regex: Remove text-align: left/justify
+                            cssText = cssText.replace(/text-align\s*:\s*(left|justify)(\s*!important)?\s*[;}]/gi, '');
+                        }
+                        if (fixFontSize) {
+                            // Regex: Remove font-size: [number]px
+                            cssText = cssText.replace(/font-size\s*:\s*[\d.]+px(\s*!important)?\s*[;}]/gi, '');
+                        }
+
+                        zip.file(filename, cssText);
+                    }
+
+                    // XHTML/HTML FILES (For Ocean of PDF)
+                    if (fixOcean && (filename.endsWith('.xhtml') || filename.endsWith('.html') || filename.endsWith('.htm'))) {
+                        let htmlContent = await zipEntry.async("string");
+
+                        // Simple string check before parsing to save resources
+                        if (htmlContent.includes('oceanofpdf.com')) {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(htmlContent, "application/xml");
+
+                            // Find links
+                            const links = doc.querySelectorAll('a[href*="oceanofpdf.com"]');
+
+                            let modified = false;
+                            links.forEach(link => {
+                                // Check if the parent is just a wrapper (p or div) and has no other text
+                                const parent = link.parentElement;
+                                if (parent && (parent.tagName === 'p' || parent.tagName === 'div') && parent.textContent.trim() === link.textContent.trim()) {
+                                    parent.remove();
+                                } else {
+                                    link.remove();
+                                }
+                                modified = true;
+                            });
+
+                            if (modified) {
+                                const serializer = new XMLSerializer();
+                                zip.file(filename, serializer.serializeToString(doc));
+                            }
+                        }
+                    }
+                }
+                return zip;
+            } catch (e) {
+                console.error(e);
+                alert("Oops, something broke inside the file parser.");
+                return null;
+            }
+        })();
+
+        // Wait for BOTH the fake timer and the real work
+        const [_, processedZip] = await Promise.all([animateProgress, fileProcessing]);
+
+        if (processedZip) {
+            progressBar.style.width = '100%';
+            statusText.innerText = "Done! Downloading...";
+
+            // Generate download
+            const content = await processedZip.generateAsync({type: "blob"});
+            const url = window.URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Add -fixed suffix
+            const originalName = file.name.replace(/\.epub$/i, "");
+            a.download = `${originalName}-fixed.epub`;
+
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            // Reset UI after short delay
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+                dropZone.style.display = 'block';
+                statusText.innerText = "Waiting for file...";
+            }, 2000);
+
+            // Track event if analytics exists
+            // noinspection JSUnresolvedReference
+            if (typeof gtag === 'function') {
+                // noinspection JSUnresolvedReference
+                gtag('event', 'epub_fixed', {
+                    'event_category': 'engagement',
+                    'event_label': 'EPUB Fixed'
+                });
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

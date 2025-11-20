@@ -1,0 +1,52 @@
+Hi, please create a single page HTML/CSS/JS PWA.
+
+
+
+Design: modern, simple, light, sophisticated; sage and orange tints for primary and accent colors
+
+
+
+Elements:
+
+- a header (something like "EPUB formatting fixer")
+
+- a silly quote, correctly styled (e.g. "A better formatter EPUB is better than not. Unknown author")
+
+- an explanation of what this tool does (layman terms, with SEO in mind, use slightly fun/sarcastic language)
+
+- checkboxes for each problem fix (with subtitles of what it does, in layman terms, use slightly fun/sarcastic language)
+
+- prominent file drop/select area
+
+- AdSense placeholder (add insctuctions on how to integrate it in a comment)
+
+- a section with links to free epub
+
+- a disclaimer that in rare occasions resulting file may have worse formatting than the original
+
+- in the footer: highly visible links back home (https://mydaily.app) and links to the popular free epub download sites (e.g. Ocean of PDF https://oceanofpdf.com, Project Guttenberg
+
+
+
+The most common epub problems the tool will fix:
+
+- fixed line heigh, causes text to be too dense and hard on eyes to read. also this makes some e-reader (Kobo for example) ignore line spacing set by user. The tool must remove all line-height CSS rules from css files found in epub archive
+
+- fixed 'justify' and 'left' text alignment. this may make text harder to read and doesn't let user change the alignment in e-reader. fix: remove all 'text-align' CSS rules with 'left' and 'justify' values
+
+- fixed font size in pixels, which doesn't let users to change the font size. fix: remove all 'font-size' rules set in 'px' (e.g. 'font-size: 14px')
+
+- epub files downloaded from "Ocean of PDF" website have too many promo links back to Ocean of PDF site which is annoying. the links must be deleted from the 'xhtml' files, except the first occurrence; the link example: `<div ...><p><a href="https://oceanofpdf.com"><i>OceanofPDF.com</i></a></p></div>`.
+
+
+
+Implementation notes:
+
+- make each fix/adjustment optional. all fixes must be enabled by default except the 'ocean of pdf' promo links removal
+
+- implement a fake fancy progress bar which will show the "status" of the fixing. the fix shoud take about 5-7 seconds (for user to have time to pay closer attention to the ads)
+
+- add Google analitycs code (add integration instruction in a comment): I want to track unique/returning visitors and epubs fixed
+
+- trigger fixed file download when the real fix and the fix progress bar are complete; add '-fixed' suffix to the original file base name
+

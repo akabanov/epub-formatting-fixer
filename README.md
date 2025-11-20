@@ -1,16 +1,20 @@
-# ocean_of_pdf_epub_fix
+# EPUB Fixer for Kobo
 
-A new Flutter project.
+Some e-readers apply formatting rules embedded in digital books that override
+your personal reading preferences. This is particularly problematic with Kobo
+devices and Adobe Digital Editions, which strictly prioritize the publisher's
+formatting over your chosen settings for text size, spacing, and alignment. This
+app removes those embedded formatting instructions, restoring control over how
+your books display on your device.
 
-## Getting Started
+## Roadmap
 
-This project is a starting point for a Flutter application.
+- create icons
+- add links to free EPUBs
+- decide on the domain name (update footer)
+- add ads
+- add analytic tracking
 
-A few resources to get you started if this is your first Flutter project:
+## Promo
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- https://www.reddit.com/r/kobo/comments/r7hlrp/anyone_with_problems_adjusting_line_spacing/
