@@ -33,6 +33,14 @@
             --card-shadow: 0 10px 25px rgba(138, 154, 91, 0.15);
         }
 
+        html, body {
+            overscroll-behavior-y: none;
+            position: fixed;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: var(--bg-cream);
@@ -42,9 +50,6 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            /* Prevent over-scrolling on mobile */
-            overscroll-behavior: none;
-            -webkit-overflow-scrolling: touch;
         }
 
         /* Header */
@@ -112,7 +117,7 @@
         /* Options Grid */
         .options-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -278,7 +283,7 @@
 <body>
 
 <header>
-    <h1>EPUB Liberator 02</h1>
+    <h1>EPUB Liberator</h1>
     <div class="quote">
         "A better formatted EPUB is better than not." — Some Ancient Prophet
 <!--        <br/>-->
