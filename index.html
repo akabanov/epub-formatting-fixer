@@ -360,7 +360,8 @@
 
     <div class="drop-zone" id="dropZone">
         <div class="drop-text">Drop your messed up EPUB here</div>
-        <div class="drop-sub">or click to select (We'll handle the rest)</div>
+        <div class="drop-sub">or click to select</div>
+        <div class="drop-sub">(We'll handle the rest)</div>
         <input type="file" id="fileInput" accept=".epub">
     </div>
 
@@ -376,7 +377,7 @@
         the original if the publisher did something truly bizarre with their styling.
         <br/>
         <br/>
-        You still have the original file, don't you?
+        But you still have the original file, don't you?
     </div>
 
     <div class="links-section">
@@ -395,6 +396,14 @@
 </footer>
 
 <script>
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (isTouchDevice) {
+        const dropSubElement = document.querySelector('.drop-sub');
+        if (dropSubElement) {
+            dropSubElement.textContent = dropSubElement.textContent.replace('click', 'tap');
+        }
+    }
+
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const progressContainer = document.getElementById('progressContainer');
