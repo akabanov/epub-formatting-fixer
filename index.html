@@ -360,7 +360,7 @@
 
     <div class="drop-zone" id="dropZone">
         <div class="drop-text">Drop your messed up EPUB here</div>
-        <div class="drop-sub">or click to select</div>
+        <div class="drop-sub">or <span class="click-word">click</span> to select</div>
         <div class="drop-sub">(We'll handle the rest)</div>
         <input type="file" id="fileInput" accept=".epub">
     </div>
@@ -398,10 +398,10 @@
 <script>
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     if (isTouchDevice) {
-        const dropSubElement = document.querySelector('.drop-sub');
-        if (dropSubElement) {
-            dropSubElement.textContent = dropSubElement.textContent.replace('click', 'tap');
-        }
+        const clickElements = document.querySelectorAll('.click-word');
+        clickElements.forEach(element => {
+            element.textContent = 'tap';
+        });
     }
 
     const dropZone = document.getElementById('dropZone');
