@@ -122,22 +122,21 @@
         */
 
         /* Options Grid */
-        .options-grid {
+        .options-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin: .7rem auto 0;
         }
 
         .option-card {
-            border: 1px solid #eee;
-            padding: 1rem;
+            padding: 0.25rem;
             border-radius: 8px;
             transition: transform 0.2s;
+            text-wrap: nowrap;
         }
 
         .option-card:hover {
-            border-color: var(--primary-sage);
             background-color: #fafbf8;
         }
 
@@ -151,21 +150,16 @@
             accent-color: var(--accent-orange-pop);
             width: 20px;
             height: 20px;
-            margin-right: 15px;
+            margin-right: 0.75rem;
             margin-top: 3px;
         }
 
         .opt-title {
             display: block;
             font-weight: bold;
-            margin-bottom: 4px;
             color: var(--primary-sage-dark);
-        }
-
-        .opt-desc {
-            display: block;
-            font-size: 0.9rem;
-            color: var(--text-light);
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         /* File Drop Area */
@@ -262,7 +256,10 @@
             font-size: 0.8rem;
             color: #777;
             margin-top: 2rem;
-            text-align: center;
+        }
+
+        .disclaimer p {
+            margin: .5rem auto;
         }
 
         /* Footer */
@@ -292,7 +289,7 @@
 <header>
     <h1>EPUB Liberator</h1>
     <div class="quote">
-        "A better formatted EPUB is better than not." — Some Ancient Prophet
+        "A better formatted EPUB is better than not." — Some Wise Man
         <!--        <br/>-->
         <!--        Get more wisdom from FAQs and Hacks <a href="#faq">down below</a>.-->
     </div>
@@ -315,49 +312,6 @@
 
     </div>
 
-    <div class="options-grid">
-        <div class="option-card">
-            <label>
-                <input type="checkbox" id="fix-line-height" checked>
-                <div>
-                    <span class="opt-title">Line Spacing</span>
-                    <span class="opt-desc">Removes fixed between-line spacing.
-                        Cures "Wall of Text" syndrome and makes your eyes happy.</span>
-                </div>
-            </label>
-        </div>
-
-        <div class="option-card">
-            <label>
-                <input type="checkbox" id="fix-align" checked>
-                <div>
-                    <span class="opt-title">Text Alignment</span>
-                    <span class="opt-desc">Removes text alignment locks. Let your device decide where the words sit in the line.</span>
-                </div>
-            </label>
-        </div>
-
-        <div class="option-card">
-            <label>
-                <input type="checkbox" id="fix-fontsize" checked>
-                <div>
-                    <span class="opt-title">Font Size</span>
-                    <span class="opt-desc">Deletes fixed font sizes. Because size set in stone is a crime against accessibility.</span>
-                </div>
-            </label>
-        </div>
-
-        <div class="option-card">
-            <label>
-                <input type="checkbox" id="fix-ocean" checked>
-                <div>
-                    <span class="opt-title">Links to Ocean of PDF</span>
-                    <span class="opt-desc">Downloaded from the Ocean? Tired of the Ocean links? We'll toss them into the abyss.</span>
-                </div>
-            </label>
-        </div>
-    </div>
-
     <div class="drop-zone" id="dropZone">
         <div class="drop-text">Drop your messed up EPUB here</div>
         <div class="drop-sub">or <span class="click-word">click</span> to select</div>
@@ -373,11 +327,42 @@
     </div>
 
     <div class="disclaimer">
-        Disclaimer: We are pretty good at this, but on rare occasions, the resulting file might look even uglier than
-        the original if the publisher did something truly bizarre with their styling.
-        <br/>
-        <br/>
-        But you still have the original file, don't you?
+        <p>
+            Disclaimer: We are pretty good at this, but on rare occasions, the resulting file might look even uglier
+            than the original if the publisher did something truly bizarre with their styling.
+        </p>
+        <p>
+            In this case try opting out of some fixes and try again:</p>
+        <div class="options-container">
+            <div class="option-card">
+                <label>
+                    <input type="checkbox" id="fix-line-height" checked>
+                    <span class="opt-title">Line Spacing</span>
+                </label>
+            </div>
+            <div class="option-card">
+                <label>
+                    <input type="checkbox" id="fix-align" checked>
+                    <span class="opt-title">Text Alignment</span>
+                </label>
+            </div>
+            <div class="option-card">
+                <label>
+                    <input type="checkbox" id="fix-fontsize" checked>
+                    <span class="opt-title">Font Size</span>
+                </label>
+            </div>
+        </div>
+
+        <p>Purists who downloaded their books from the Ocean Of PDF will appreciate the opportunity:</p>
+
+        <div class="option-card" style="align-content: center;">
+            <label>
+                <input type="checkbox" id="fix-ocean">
+                <span class="opt-title">Remove links to Ocean of PDF</span>
+            </label>
+        </div>
+
     </div>
 
     <div class="links-section">
